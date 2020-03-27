@@ -24,7 +24,6 @@ func main() {
 		fmt.Fprintf(res, "Hello Alochym\n")
 	})
 
-	// http.HandlerFunc()
 	// starting http server w port 500
 	err := http.ListenAndServe(":5000", nil)
 
