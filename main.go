@@ -14,7 +14,7 @@ func sayHello(res http.ResponseWriter, req *http.Request) {
 
 func main() {
 
-	// using sayHello to handle request
+	// using sayHello function to handle request
 	http.HandleFunc("/", sayHello)
 
 	// using embeded function to handle request
@@ -24,6 +24,7 @@ func main() {
 		fmt.Fprintf(res, "Hello Alochym\n")
 	})
 
+	// http.HandlerFunc()
 	// starting http server w port 500
 	err := http.ListenAndServe(":5000", nil)
 
