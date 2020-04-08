@@ -2,33 +2,44 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+	"os"
+
+	"github.com/alochym01/web-w-golang/project/driver"
+	"github.com/alochym01/web-w-golang/project/handler"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 )
 
-func sayHello(res http.ResponseWriter, req *http.Request) {
-	fmt.Println(req.URL)
-	fmt.Println(req.URL.Scheme)
-	fmt.Fprintf(res, "Hello\n")
-}
-
 func main() {
+	connection, err := driver.ConnectSQL("127.0.0.1", 3306, "alochym", "Alochym@123", "alochym")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
+	r := chi.NewRouter()
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.Logger)
 
-	// using sayHello function to handle request
-	http.HandleFunc("/", sayHello)
+	postHandler := handler.NewPostHandler(connection)
 
-	// using embeded function to handle request
-	http.HandleFunc("/alochym", func(res http.ResponseWriter, req *http.Request) {
-		fmt.Println(req.URL)
-		fmt.Println(req.URL.Scheme)
-		fmt.Fprintf(res, "Hello Alochym\n")
+	r.Route("/", func(rt chi.Router) {
+		rt.Mount("/posts", postRouter(postHandler))
 	})
 
-	// starting http server w port 500
-	err := http.ListenAndServe(":5000", nil)
+	fmt.Println("Server listen at :8080")
+	http.ListenAndServe(":8080", r)
 
-	if err != nil {
-		log.Fatal("listen ans serve: ", err)
-	}
-	fmt.Println("server running")
+}
+
+// A completely separate router for posts routes
+func postRouter(pHandler *handler.PostController) http.Handler {
+	r := chi.NewRouter()
+	r.Get("/", pHandler.Fetch)
+	r.Get("/{id:[0-9]+}", pHandler.GetByID)
+	r.Post("/", pHandler.Create)
+	r.Put("/{id:[0-9]+}", pHandler.Update)
+	r.Delete("/{id:[0-9]+}", pHandler.Delete)
+
+	return r
 }
