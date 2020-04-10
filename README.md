@@ -1,6 +1,7 @@
 # Learn web application golang
 
 -   https://itnext.io/beautify-your-golang-project-f795b4b453aa
+-   https://adodd.net/post/go-ddd-repository-pattern/
 
 -   Project structure
 
@@ -101,7 +102,6 @@
 
 -   handler
     -   `handler/post.go` - Post controllers
-    -   declare Post struct - Post Controllers
 
             type Post struct {
                 repo repository.PostRepo
